@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Atlas Supply</title>
+<style>
+  :root {
+    --steel: #2b2e33;
+    --steel-dark: #1a1c1f;
+    --amber: #d9822b;
+    --amber-dark: #b5661a;
+    --concrete: #8a8f94;
+    --bg: #f2f1ed;
+    --card: #ffffff;
+    --ok: #3a7d44;
+    --danger: #b23a3a;
+    --text: #1c1d1f;
+    --text-muted: #5b5e63;
+    --border: #d8d6cf;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+  }
+  header {
+    background: repeating-linear-gradient(135deg, var(--steel-dark), var(--steel-dark) 12px, #222528 12px, #222528 24px);
+    color: #f2f1ed;
+    padding: 2.5rem 1.5rem 2rem;
+    border-bottom: 6px solid var(--amber);
+    text-align: center;
+  }
+  header h1 {
+    margin: 0;
+    font-size: 2.2rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    font-weight: 800;
+  }
+  header .tag {
+    color: var(--amber);
+    font-weight: 600;
+    letter-spacing: 2px;
+    margin-top: 0.4rem;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+  }
+  nav {
+    display: flex;
+    justify-content: center;
+    background: var(--steel);
+    flex-wrap: wrap;
+  }
+  nav button {
+    background: none;
+    border: none;
+    color: #f2f1ed;
+    padding: 0.9rem 1.4rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+  }
+  nav button.active {
+    border-bottom: 3px solid var(--amber);
+    color: var(--amber);
+  }
+  main {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 2rem 1.25rem 4rem;
+  }
+  .section { display: none; }
+  .section.active { display: block; }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.1rem;
+    margin-top: 1.5rem;
+  }
+  .product-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-left: 6px solid var(--amber);
+    border-radius: 6px;
+    padding: 1.1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .product-card h3 { margin: 0; font-size: 1.05rem; text-transform: uppercase; letter-spacing: 0.5px; }
+  .product-card .unit { color: var(--text-muted); font-size: 0.85rem; }
+  .product-card .price { font-size: 1.4rem; font-weight: 800; color: var(--amber-dark); }
+  .product-card .stock { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+  .stock.in { color: var(--ok); }
+  .stock.low { color: var(--amber-dark); }
+  .stock.out { color: var(--danger); }
+  .qty-row { display: flex; gap: 0.5rem; align-items: center; margin-top: 0.3rem; }
+  .qty-row input { width: 70px; }
+  button, input, select, textarea { font-family: inherit; font-size: 0.95rem; }
+  input, select, textarea {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text);
+    padding: 0.55rem 0.65rem;
+  }
+  .btn {
+    background: var(--amber);
+    color: #1a1c1f;
+    border: none;
+    border-radius: 4px;
+    padding: 0.6rem 1rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+  }
+  .btn:hover { background: var(--amber-dark); }
+  .btn.secondary { background: transparent; border: 1px solid var(--concrete); color: var(--text); }
+  .btn.danger { background: var(--danger); color: #fff; }
+  .btn.small { padding: 0.35rem 0.7rem; font-size: 0.8rem; }
+  h2.section-title {
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-size: 1.3rem;
+    border-bottom: 3px solid var(--steel);
+    padding-bottom: 0.5rem;
+  }
+  .cart-box { background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 1.2rem; margin-top: 1.5rem; }
+  .cart-line { display: flex; justify-content: space-between; padding: 0.4rem 0; border-bottom: 1px dashed var(--border); font-size: 0.92rem; }
+  .cart-total { display: flex; justify-content: space-between; font-weight: 800; font-size: 1.2rem; margin-top: 0.8rem; color: var(--amber-dark); }
+  form.order-form { display: grid; gap: 0.8rem; margin-top: 1rem; }
+  label { font-size: 0.82rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 0.25rem; }
+  .error-text { color: var(--danger); font-size: 0.8rem; margin-top: 0.2rem; }
+  .success-box { background: var(--card); border: 1px solid var(--ok); border-left: 6px solid var(--ok); border-radius: 6px; padding: 1.2rem; margin-top: 1.2rem; }
+  table.admin-table { width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: 0.88rem; }
+  table.admin-table th, table.admin-table td { border: 1px solid var(--border); padding: 0.5rem 0.6rem; text-align: left; vertical-align: middle; }
+  table.admin-table th { background: var(--steel); color: #f2f1ed; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.5px; }
+  table.admin-table input { width: 100%; padding: 0.3rem 0.4rem; }
+  .admin-add-card { background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 1.2rem; margin-top: 1.5rem; }
+  .admin-add-card .row { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.7rem; }
+  .lock-screen { max-width: 360px; margin: 3rem auto; background: var(--card); border: 1px solid var(--border); border-left: 6px solid var(--steel); border-radius: 6px; padding: 1.5rem; text-align: center; }
+  .status-pill { display: inline-block; padding: 0.15rem 0.55rem; border-radius: 3px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; }
+  .status-new { background: #d9822b33; color: var(--amber-dark); }
+  .status-done { background: #3a7d4433; color: var(--ok); }
+  .empty-msg { color: var(--text-muted); font-style: italic; padding: 1rem 0; }
+  footer { text-align: center; color: var(--text-muted); font-size: 0.8rem; padding: 1.5rem; }
+  :root {
+    --map-ocean: #dce7ea;
+    --map-land: #c9c3ac;
+    --map-land-border: #9a9375;
+  }
+  .map-wrap {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.8rem;
+    margin-top: 1rem;
+    overflow-x: auto;
+  }
+  #world-map { width: 100%; height: auto; min-width: 500px; display: block; }
+  .map-marker circle {
+    fill: var(--amber);
+    stroke: var(--amber-dark);
+    stroke-width: 1.5;
+  }
+  .map-marker text {
+    font-size: 11px;
+    font-weight: 700;
+    fill: var(--steel-dark);
+  }
+  .region-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0.7rem;
+    margin-top: 1.2rem;
+  }
+  .region-chip {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--amber);
+    border-radius: 4px;
+    padding: 0.6rem 0.8rem;
+    font-size: 0.88rem;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Atlas Supply</h1>
+  <div class="tag">Building materials &amp; resources for Capital Rift</div>
+</header>
+
+<nav>
+  <button class="nav-btn active" data-target="shop">Shop</button>
+  <button class="nav-btn" data-target="cart">Cart (<span id="cart-count">0</span>)</button>
+  <button class="nav-btn" data-target="delivery">Delivery Map</button>
+  <button class="nav-btn" data-target="admin">Admin</button>
+</nav>
+
+<main>
+
+  <section id="shop" class="section active">
+    <h2 class="section-title">Current stock</h2>
+    <div id="product-grid" class="grid"></div>
+  </section>
+
+  <section id="cart" class="section">
+    <h2 class="section-title">Cart &amp; order</h2>
+    <div id="cart-lines" class="cart-box"></div>
+
+    <form class="order-form" id="order-form">
+      <div>
+        <label for="cust-name">Customer name / in-game name</label>
+        <input type="text" id="cust-name" placeholder="e.g. JohnDoe">
+        <div class="error-text" id="err-name"></div>
+      </div>
+      <div>
+        <label for="cust-contact">Contact (Discord)</label>
+        <input type="text" id="cust-contact" placeholder="e.g. john#1234">
+        <div class="error-text" id="err-contact"></div>
+      </div>
+      <div>
+        <label for="cust-note">Note (optional)</label>
+        <textarea id="cust-note" rows="2" placeholder="Delivery location, requests etc."></textarea>
+      </div>
+      <button type="submit" class="btn">Submit order</button>
+    </form>
+
+    <div id="order-success" class="success-box" style="display:none;"></div>
+  </section>
+
+  <section id="delivery" class="section">
+    <h2 class="section-title">Where we deliver</h2>
+    <p style="color:var(--text-muted); font-size:0.9rem; margin-top:0.6rem;">Atlas Supply ships to the following locations worldwide.</p>
+    <div class="map-wrap">
+      <svg id="world-map" viewBox="0 0 1000 500" xmlns="http://www.w3.org/2000/svg">
+        <rect x="0" y="0" width="1000" height="500" fill="var(--map-ocean)"></rect>
+        <g id="continents" fill="var(--map-land)" stroke="var(--map-land-border)" stroke-width="1"></g>
+        <g id="region-markers"></g>
+      </svg>
+    </div>
+    <div id="region-list" class="region-list"></div>
+  </section>
+
+  <section id="admin" class="section">
+    <div id="admin-lock" class="lock-screen">
+      <h2 class="section-title" style="border:none;">Admin access</h2>
+      <p style="color:var(--text-muted); font-size:0.85rem;">Enter password to manage products and orders.</p>
+      <input type="password" id="admin-password" placeholder="Password" style="width:100%; margin-bottom:0.6rem;">
+      <div class="error-text" id="err-password"></div>
+      <button class="btn" id="admin-login-btn" style="width:100%;">Log in</button>
+    </div>
+
+    <div id="admin-panel" style="display:none;">
+      <h2 class="section-title">Manage products</h2>
+      <table class="admin-table">
+        <thead>
+          <tr><th>Name</th><th>Unit</th><th>Price</th><th>Stock status</th><th></th></tr>
+        </thead>
+        <tbody id="admin-product-body"></tbody>
+      </table>
+
+      <div class="admin-add-card">
+        <label style="margin-bottom:0.5rem; font-size:0.9rem; text-transform:none; letter-spacing:0;">Add new product</label>
+        <div class="row">
+          <input type="text" id="new-name" placeholder="Name (e.g. Concrete)">
+          <input type="text" id="new-unit" placeholder="Unit (e.g. per bag)">
+          <input type="number" id="new-price" placeholder="Price" min="0" step="1">
+          <select id="new-stock">
+            <option value="in">In stock</option>
+            <option value="low">Low stock</option>
+            <option value="out">Out of stock</option>
+          </select>
+        </div>
+        <div class="error-text" id="err-new-product"></div>
+        <button class="btn" id="add-product-btn" style="margin-top:0.7rem;">Add product</button>
+      </div>
+
+      <h2 class="section-title" style="margin-top:2rem;">Delivery regions</h2>
+      <table class="admin-table">
+        <thead>
+          <tr><th>Location</th><th>Lat</th><th>Lon</th><th></th></tr>
+        </thead>
+        <tbody id="admin-region-body"></tbody>
+      </table>
+
+      <div class="admin-add-card">
+        <label style="margin-bottom:0.5rem; font-size:0.9rem; text-transform:none; letter-spacing:0;">Add delivery location</label>
+        <div class="row">
+          <input type="text" id="new-region-label" placeholder="City, Country (e.g. Paris, France)">
+          <input type="number" id="new-region-lat" placeholder="Latitude" step="0.0001" min="-90" max="90">
+          <input type="number" id="new-region-lon" placeholder="Longitude" step="0.0001" min="-180" max="180">
+        </div>
+        <p style="color:var(--text-muted); font-size:0.78rem; margin:0.5rem 0 0;">Tip: search "[city name] latitude longitude" to find coordinates.</p>
+        <div class="error-text" id="err-new-region"></div>
+        <button class="btn" id="add-region-btn" style="margin-top:0.7rem;">Add location</button>
+      </div>
+
+      <h2 class="section-title" style="margin-top:2rem;">Incoming orders</h2>
+      <div id="admin-orders"></div>
+
+      <h2 class="section-title" style="margin-top:2rem;">Settings</h2>
+      <div class="admin-add-card">
+        <label>Change admin password</label>
+        <div class="row">
+          <input type="password" id="new-password" placeholder="New password">
+        </div>
+        <div class="error-text" id="err-new-password"></div>
+        <button class="btn secondary" id="change-password-btn" style="margin-top:0.7rem;">Save password</button>
+        <button class="btn danger" id="logout-btn" style="margin-top:0.7rem;">Log out</button>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>Atlas Supply &mdash; internal trading site for Capital Rift</footer>
+
+<script>
+(function () {
+  var STOCK_LABELS = { in: 'In stock', low: 'Low stock', out: 'Out of stock' };
+  var cart = {};
+  var products = [];
+
+  function fmtPrice(n) { return Number(n).toLocaleString('en-US') + ' $'; }
+  function escapeHtml(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+  function api(path, options) {
+    options = options || {};
+    options.headers = Object.assign({ 'Content-Type': 'application/json' }, options.headers || {});
+    return fetch(path, options).then(function (res) {
+      return res.json().then(function (data) { return { ok: res.ok, status: res.status, data: data }; });
+    });
+  }
+
+  // ---------- NAV ----------
+  document.querySelectorAll('.nav-btn').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      document.querySelectorAll('.nav-btn').forEach(function (b) { b.classList.remove('active'); });
+      document.querySelectorAll('.section').forEach(function (s) { s.classList.remove('active'); });
+      btn.classList.add('active');
+      document.getElementById(btn.dataset.target).classList.add('active');
+      if (btn.dataset.target === 'cart') renderCart();
+      if (btn.dataset.target === 'delivery') loadDeliveryRegions();
+      if (btn.dataset.target === 'admin') checkSessionAndRenderAdmin();
+    });
+  });
+
+  // ---------- WORLD MAP (simplified continent silhouettes, equirectangular-ish) ----------
+  // Coordinates are simplified polygon outlines, not survey-accurate borders.
+  var CONTINENT_PATHS = [
+    // North America
+    "M60,90 L120,60 L180,65 L230,90 L250,120 L240,160 L210,190 L190,230 L160,250 L120,240 L90,210 L70,170 L55,130 Z",
+    // South America
+    "M200,270 L230,260 L250,290 L260,340 L245,400 L225,440 L205,430 L195,370 L190,320 Z",
+    // Europe
+    "M470,80 L520,70 L560,85 L570,110 L545,130 L520,125 L490,140 L470,115 Z",
+    // Africa
+    "M480,150 L540,145 L570,180 L575,230 L555,290 L525,340 L500,335 L490,280 L470,230 L465,190 Z",
+    // Asia
+    "M580,60 L680,50 L780,70 L850,100 L870,140 L820,170 L760,160 L700,190 L650,170 L600,150 L575,110 L580,80 Z",
+    // Australia
+    "M780,320 L840,310 L870,335 L855,365 L800,370 L775,345 Z"
+  ];
+
+  function drawContinents() {
+    var g = document.getElementById('continents');
+    g.innerHTML = '';
+    CONTINENT_PATHS.forEach(function (d) {
+      var path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      path.setAttribute('d', d);
+      g.appendChild(path);
+    });
+  }
+
+  // Simple equirectangular projection: lon -180..180 -> x 0..1000, lat 90..-90 -> y 0..500
+  function projectLatLon(lat, lon) {
+    var x = (lon + 180) / 360 * 1000;
+    var y = (90 - lat) / 180 * 500;
+    return { x: x, y: y };
+  }
+
+  function loadDeliveryRegions() {
+    drawContinents();
+    api('/api/delivery-regions').then(function (res) {
+      var regions = res.data || [];
+      var markersGroup = document.getElementById('region-markers');
+      markersGroup.innerHTML = '';
+      regions.forEach(function (r) {
+        var p = projectLatLon(r.lat, r.lon);
+        var g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        g.setAttribute('class', 'map-marker');
+        var circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle.setAttribute('cx', p.x);
+        circle.setAttribute('cy', p.y);
+        circle.setAttribute('r', 6);
+        var title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+        title.textContent = r.label;
+        g.appendChild(circle);
+        g.appendChild(title);
+        markersGroup.appendChild(g);
+      });
+
+      var listEl = document.getElementById('region-list');
+      if (regions.length === 0) {
+        listEl.innerHTML = '<div class="empty-msg">No delivery locations set yet.</div>';
+      } else {
+        listEl.innerHTML = regions.map(function (r) {
+          return '<div class="region-chip">' + escapeHtml(r.label) + (r.note ? '<br><span style="color:var(--text-muted); font-size:0.8rem;">' + escapeHtml(r.note) + '</span>' : '') + '</div>';
+        }).join('');
+      }
+    });
+  }
+
+  // ---------- SHOP ----------
+  function loadProducts() {
+    return api('/api/products').then(function (res) {
+      products = res.data || [];
+      renderShop();
+    });
+  }
+
+  function renderShop() {
+    var grid = document.getElementById('product-grid');
+    grid.innerHTML = '';
+    products.forEach(function (p) {
+      var card = document.createElement('div');
+      card.className = 'product-card';
+      var disabled = p.stock === 'out' ? 'disabled' : '';
+      card.innerHTML =
+        '<h3>' + escapeHtml(p.name) + '</h3>' +
+        '<div class="unit">' + escapeHtml(p.unit) + '</div>' +
+        '<div class="price">' + fmtPrice(p.price) + '</div>' +
+        '<div class="stock ' + p.stock + '">' + STOCK_LABELS[p.stock] + '</div>' +
+        '<div class="qty-row">' +
+          '<input type="number" min="1" value="1" id="qty-' + p.id + '" ' + disabled + '>' +
+          '<button class="btn small" data-add="' + p.id + '" ' + disabled + '>Add to cart</button>' +
+        '</div>';
+      grid.appendChild(card);
+    });
+    grid.querySelectorAll('[data-add]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var id = btn.dataset.add;
+        var qtyInput = document.getElementById('qty-' + id);
+        var qty = Math.max(1, parseInt(qtyInput.value, 10) || 1);
+        cart[id] = (cart[id] || 0) + qty;
+        renderCartCount();
+      });
+    });
+  }
+
+  function renderCartCount() {
+    var count = Object.values(cart).reduce(function (a, b) { return a + b; }, 0);
+    document.getElementById('cart-count').textContent = count;
+  }
+
+  function renderCart() {
+    var box = document.getElementById('cart-lines');
+    var ids = Object.keys(cart).filter(function (id) { return cart[id] > 0; });
+    if (ids.length === 0) {
+      box.innerHTML = '<div class="empty-msg">Your cart is empty. Go back to the shop and pick some products.</div>';
+      return;
+    }
+    var total = 0;
+    var html = '';
+    ids.forEach(function (id) {
+      var p = products.find(function (x) { return String(x.id) === String(id); });
+      if (!p) return;
+      var qty = cart[id];
+      var sum = p.price * qty;
+      total += sum;
+      html += '<div class="cart-line"><span>' + escapeHtml(p.name) + ' x' + qty + '</span><span>' + fmtPrice(sum) + '</span></div>';
+    });
+    html += '<div class="cart-total"><span>Total</span><span>' + fmtPrice(total) + '</span></div>';
+    box.innerHTML = html;
+  }
+
+  document.getElementById('order-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var nameEl = document.getElementById('cust-name');
+    var contactEl = document.getElementById('cust-contact');
+    var noteEl = document.getElementById('cust-note');
+    var errName = document.getElementById('err-name');
+    var errContact = document.getElementById('err-contact');
+    errName.textContent = '';
+    errContact.textContent = '';
+
+    var ids = Object.keys(cart).filter(function (id) { return cart[id] > 0; });
+    var valid = true;
+    if (!nameEl.value.trim()) { errName.textContent = 'Please enter a name.'; valid = false; }
+    if (!contactEl.value.trim()) { errContact.textContent = 'Please enter a contact.'; valid = false; }
+    if (ids.length === 0) {
+      alert('Your cart is empty. Please add products first.');
+      return;
+    }
+    if (!valid) return;
+
+    var items = ids.map(function (id) { return { id: parseInt(id, 10), qty: cart[id] }; });
+
+    api('/api/orders', {
+      method: 'POST',
+      body: JSON.stringify({
+        name: nameEl.value.trim(),
+        contact: contactEl.value.trim(),
+        note: noteEl.value.trim(),
+        items: items
+      })
+    }).then(function (res) {
+      if (!res.ok) {
+        alert(res.data.error || 'Something went wrong.');
+        return;
+      }
+      cart = {};
+      renderCartCount();
+      renderCart();
+      nameEl.value = '';
+      contactEl.value = '';
+      noteEl.value = '';
+      var successBox = document.getElementById('order-success');
+      successBox.style.display = 'block';
+      successBox.innerHTML = '<strong>Order received.</strong><br>We\'ll message you on Discord once the delivery is ready.';
+    });
+  });
+
+  // ---------- ADMIN ----------
+  function checkSessionAndRenderAdmin() {
+    api('/api/session').then(function (res) {
+      if (res.data && res.data.is_admin) {
+        document.getElementById('admin-lock').style.display = 'none';
+        document.getElementById('admin-panel').style.display = 'block';
+        renderAdmin();
+      } else {
+        document.getElementById('admin-lock').style.display = 'block';
+        document.getElementById('admin-panel').style.display = 'none';
+      }
+    });
+  }
+
+  document.getElementById('admin-login-btn').addEventListener('click', function () {
+    var pwEl = document.getElementById('admin-password');
+    var err = document.getElementById('err-password');
+    api('/api/login', { method: 'POST', body: JSON.stringify({ password: pwEl.value }) }).then(function (res) {
+      if (res.ok) {
+        err.textContent = '';
+        pwEl.value = '';
+        document.getElementById('admin-lock').style.display = 'none';
+        document.getElementById('admin-panel').style.display = 'block';
+        renderAdmin();
+      } else {
+        err.textContent = res.data.error || 'Incorrect password.';
+      }
+    });
+  });
+
+  document.getElementById('logout-btn').addEventListener('click', function () {
+    api('/api/logout', { method: 'POST' }).then(function () {
+      document.getElementById('admin-lock').style.display = 'block';
+      document.getElementById('admin-panel').style.display = 'none';
+    });
+  });
+
+  document.getElementById('change-password-btn').addEventListener('click', function () {
+    var newPwEl = document.getElementById('new-password');
+    var err = document.getElementById('err-new-password');
+    err.textContent = '';
+    api('/api/admin/password', { method: 'POST', body: JSON.stringify({ password: newPwEl.value }) }).then(function (res) {
+      if (res.ok) {
+        newPwEl.value = '';
+        alert('Password changed.');
+      } else {
+        err.textContent = res.data.error || 'Could not change password.';
+      }
+    });
+  });
+
+  document.getElementById('add-product-btn').addEventListener('click', function () {
+    var nameEl = document.getElementById('new-name');
+    var unitEl = document.getElementById('new-unit');
+    var priceEl = document.getElementById('new-price');
+    var stockEl = document.getElementById('new-stock');
+    var err = document.getElementById('err-new-product');
+    err.textContent = '';
+
+    api('/api/admin/products', {
+      method: 'POST',
+      body: JSON.stringify({
+        name: nameEl.value.trim(),
+        unit: unitEl.value.trim(),
+        price: priceEl.value,
+        stock: stockEl.value
+      })
+    }).then(function (res) {
+      if (!res.ok) {
+        err.textContent = res.data.error || 'Please provide name, unit, and a valid price.';
+        return;
+      }
+      nameEl.value = '';
+      unitEl.value = '';
+      priceEl.value = '';
+      stockEl.value = 'in';
+      loadProducts();
+      renderAdmin();
+    });
+  });
+
+  document.getElementById('add-region-btn').addEventListener('click', function () {
+    var labelEl = document.getElementById('new-region-label');
+    var latEl = document.getElementById('new-region-lat');
+    var lonEl = document.getElementById('new-region-lon');
+    var err = document.getElementById('err-new-region');
+    err.textContent = '';
+
+    api('/api/admin/delivery-regions', {
+      method: 'POST',
+      body: JSON.stringify({
+        label: labelEl.value.trim(),
+        lat: latEl.value,
+        lon: lonEl.value
+      })
+    }).then(function (res) {
+      if (!res.ok) {
+        err.textContent = res.data.error || 'Please provide a location and valid coordinates.';
+        return;
+      }
+      labelEl.value = '';
+      latEl.value = '';
+      lonEl.value = '';
+      renderAdminRegions();
+    });
+  });
+
+  function renderAdminRegions() {
+    api('/api/delivery-regions').then(function (res) {
+      var regions = res.data || [];
+      var body = document.getElementById('admin-region-body');
+      body.innerHTML = '';
+      regions.forEach(function (r) {
+        var tr = document.createElement('tr');
+        tr.innerHTML =
+          '<td>' + escapeHtml(r.label) + '</td>' +
+          '<td>' + r.lat + '</td>' +
+          '<td>' + r.lon + '</td>' +
+          '<td><button class="btn danger small" data-remove-region="' + r.id + '">Delete</button></td>';
+        body.appendChild(tr);
+      });
+      body.querySelectorAll('[data-remove-region]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          api('/api/admin/delivery-regions/' + btn.dataset.removeRegion, { method: 'DELETE' }).then(function () {
+            renderAdminRegions();
+          });
+        });
+      });
+    });
+  }
+
+  function renderAdmin() {
+    renderAdminRegions();
+    api('/api/products').then(function (res) {
+      products = res.data || [];
+      var body = document.getElementById('admin-product-body');
+      body.innerHTML = '';
+      products.forEach(function (p) {
+        var tr = document.createElement('tr');
+        tr.innerHTML =
+          '<td><input type="text" value="' + escapeAttr(p.name) + '" data-field="name" data-id="' + p.id + '"></td>' +
+          '<td><input type="text" value="' + escapeAttr(p.unit) + '" data-field="unit" data-id="' + p.id + '"></td>' +
+          '<td><input type="number" value="' + p.price + '" min="0" step="1" data-field="price" data-id="' + p.id + '"></td>' +
+          '<td><select data-field="stock" data-id="' + p.id + '">' +
+            '<option value="in"' + (p.stock === 'in' ? ' selected' : '') + '>In stock</option>' +
+            '<option value="low"' + (p.stock === 'low' ? ' selected' : '') + '>Low stock</option>' +
+            '<option value="out"' + (p.stock === 'out' ? ' selected' : '') + '>Out of stock</option>' +
+          '</select></td>' +
+          '<td><button class="btn danger small" data-remove="' + p.id + '">Delete</button></td>';
+        body.appendChild(tr);
+      });
+
+      body.querySelectorAll('[data-field]').forEach(function (el) {
+        el.addEventListener('change', function () {
+          var id = el.dataset.id;
+          var field = el.dataset.field;
+          var payload = {};
+          payload[field] = field === 'price' ? el.value : el.value;
+          api('/api/admin/products/' + id, { method: 'PATCH', body: JSON.stringify(payload) }).then(function () {
+            loadProducts();
+          });
+        });
+      });
+
+      body.querySelectorAll('[data-remove]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          api('/api/admin/products/' + btn.dataset.remove, { method: 'DELETE' }).then(function () {
+            renderAdmin();
+            loadProducts();
+          });
+        });
+      });
+    });
+
+    api('/api/admin/orders').then(function (res) {
+      var orders = res.data || [];
+      var ordersBox = document.getElementById('admin-orders');
+      if (orders.length === 0) {
+        ordersBox.innerHTML = '<div class="empty-msg">No orders received yet.</div>';
+        return;
+      }
+      ordersBox.innerHTML = orders.map(function (o) {
+        var itemsHtml = o.items.map(function (it) {
+          return escapeHtml(it.name) + ' x' + it.qty + ' (' + fmtPrice(it.price * it.qty) + ')';
+        }).join(', ');
+        var pillClass = o.status === 'done' ? 'status-done' : 'status-new';
+        var pillLabel = o.status === 'done' ? 'Done' : 'New';
+        return '<div class="cart-box" style="margin-top:0.8rem;">' +
+          '<div style="display:flex; justify-content:space-between; align-items:center;">' +
+            '<strong>' + escapeHtml(o.customer_name) + '</strong>' +
+            '<span class="status-pill ' + pillClass + '">' + pillLabel + '</span>' +
+          '</div>' +
+          '<div style="color:var(--text-muted); font-size:0.82rem; margin:0.3rem 0;">Contact: ' + escapeHtml(o.contact) + ' &middot; ' + o.created_at + '</div>' +
+          '<div style="font-size:0.9rem;">' + itemsHtml + '</div>' +
+          (o.note ? '<div style="font-size:0.85rem; margin-top:0.3rem; color:var(--text-muted);">Note: ' + escapeHtml(o.note) + '</div>' : '') +
+          '<div style="display:flex; justify-content:space-between; align-items:center; margin-top:0.5rem;">' +
+            '<strong>' + fmtPrice(o.total) + '</strong>' +
+            '<button class="btn small ' + (o.status === 'done' ? 'secondary' : '') + '" data-toggle="' + o.id + '" data-status="' + o.status + '">' +
+              (o.status === 'done' ? 'Mark as new' : 'Mark as done') +
+            '</button>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+
+      ordersBox.querySelectorAll('[data-toggle]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var newStatus = btn.dataset.status === 'done' ? 'new' : 'done';
+          api('/api/admin/orders/' + btn.dataset.toggle, { method: 'PATCH', body: JSON.stringify({ status: newStatus }) }).then(function () {
+            renderAdmin();
+          });
+        });
+      });
+    });
+  }
+
+  function escapeAttr(s) { return String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;'); }
+
+  loadProducts();
+  renderCartCount();
+})();
+</script>
+
+</body>
+</html>
