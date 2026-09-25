@@ -9,5 +9,7 @@ services:
         generateValue: true
       - key: ADMIN_DEFAULT_PASSWORD
         sync: false
-      - key: DB_PATH
-        value: /opt/render/project/src/atlas.db
+      - key: TURSO_DATABASE_URL
+        sync: false
+      - key: TURSO_AUTH_TOKEN
+        sync: false

@@ -1,9 +1,45 @@
 # Atlas Supply
 
-Flask backend + frontend for the Atlas Supply shop (Capital Rift). Orders and
-products are stored in a shared SQLite database, so every visitor sees the
-same product list and every order lands in one place. The admin panel uses a
-real server-side session with a hashed password (no client-side PIN).
+Flask backend + frontend for the Atlas Supply shop (Capital Rift). Orders,
+products, and delivery regions are stored in a shared database, so every
+visitor sees the same data and every order lands in one place. The admin
+panel uses a real server-side session with a hashed password (no
+client-side PIN).
+
+## Database: Turso or local SQLite
+
+This app supports two database backends, chosen automatically:
+
+- **Turso** (recommended for deployment) — set `TURSO_DATABASE_URL` and
+  `TURSO_AUTH_TOKEN` as environment variables. The app then talks to your
+  Turso database over the network via `libsql`. This is the setup you want
+  on Render, since it avoids the "ephemeral filesystem" problem entirely —
+  no persistent disk needed.
+- **Local SQLite file** (default, good for local development) — if the two
+  Turso variables aren't set, the app falls back to a local `atlas.db`
+  file (path controlled by `DB_PATH`, defaults to a file next to `app.py`).
+
+### Getting your Turso credentials
+
+```bash
+# install the Turso CLI if you haven't
+curl -sSfL https://get.tur.so/install.sh | bash
+turso auth login
+
+# list your databases (or create one)
+turso db list
+turso db create atlas-supply
+
+# get the database URL
+turso db show atlas-supply
+# -> look for the "URL" line, e.g. libsql://atlas-supply-yourname.turso.io
+
+# create an auth token
+turso db tokens create atlas-supply
+```
+
+Or use the Turso web dashboard at https://app.turso.tech — open your
+database, copy the URL, and use "Create Token".
 
 ## Local development
 
@@ -15,6 +51,10 @@ pip install -r requirements.txt
 
 # optional: set a custom starting admin password (default: changeme123)
 export ADMIN_DEFAULT_PASSWORD="your-password-here"
+
+# optional: use Turso instead of local SQLite
+export TURSO_DATABASE_URL="libsql://your-db-yourname.turso.io"
+export TURSO_AUTH_TOKEN="your-token-here"
 
 python app.py
 ```
@@ -33,23 +73,14 @@ then change it right away under Admin > Settings.
    - `SECRET_KEY` — any long random string (Render can auto-generate this)
    - `ADMIN_DEFAULT_PASSWORD` — the password used the very first time the
      database is created. Change it immediately after first login.
+   - `TURSO_DATABASE_URL` — your Turso database URL (e.g.
+     `libsql://atlas-supply-yourname.turso.io`)
+   - `TURSO_AUTH_TOKEN` — your Turso auth token
 5. Deploy. Render gives you a `https://your-app.onrender.com` URL.
 
-### Important: persistent disk
-
-Render's free web services have an **ephemeral filesystem** — the SQLite
-file (`atlas.db`) is wiped on every redeploy or restart unless you attach a
-persistent disk:
-
-1. In the Render dashboard, go to your service > Disks > Add Disk.
-2. Mount path: `/opt/render/project/src` (or any path you like).
-3. Set the `DB_PATH` environment variable to point inside that mount, e.g.
-   `/opt/render/project/src/atlas.db`.
-
-Without a persistent disk, products and orders will reset every time you
-redeploy. Persistent disks are available on Render's paid plans, not the
-free tier — if you're on the free tier, consider Render's managed Postgres
-instead for real durability (this app currently uses SQLite for simplicity).
+With Turso configured, there's no persistent-disk concern: your data lives
+in Turso's cloud database, not on Render's filesystem, so it survives every
+redeploy and restart automatically.
 
 ## Admin panel
 
@@ -73,3 +104,4 @@ works, decimal degrees like `48.8566, 2.3522`.
 Note: the map uses a simplified, hand-drawn continent outline for a clean
 industrial look — it's for showing general delivery regions, not precise
 geographic borders.
+

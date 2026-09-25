@@ -9,15 +9,88 @@ from werkzeug.security import check_password_hash, generate_password_hash
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-change-me")
 
+TURSO_DATABASE_URL = os.environ.get("TURSO_DATABASE_URL")
+TURSO_AUTH_TOKEN = os.environ.get("TURSO_AUTH_TOKEN")
 DB_PATH = os.environ.get("DB_PATH", os.path.join(os.path.dirname(__file__), "atlas.db"))
+USE_TURSO = bool(TURSO_DATABASE_URL and TURSO_AUTH_TOKEN)
+
+if USE_TURSO:
+    import libsql
 
 STOCK_LABELS = {"in": "In stock", "low": "Low stock", "out": "Out of stock"}
 
 
+class RowWrapper:
+    """Makes a plain tuple row behave like sqlite3.Row (dict-style + index access)."""
+
+    def __init__(self, columns, values):
+        self._columns = columns
+        self._values = values
+
+    def __getitem__(self, key):
+        if isinstance(key, str):
+            return self._values[self._columns.index(key)]
+        return self._values[key]
+
+    def keys(self):
+        return self._columns
+
+
+class ConnWrapper:
+    """Thin wrapper so libsql connections support the same .execute(...).fetchall()/
+    fetchone() pattern with dict-like rows that the rest of this app relies on
+    (mirroring sqlite3.Row behavior), regardless of which backend is active."""
+
+    def __init__(self, conn):
+        self._conn = conn
+
+    def execute(self, sql, params=()):
+        cur = self._conn.execute(sql, params)
+        return CursorWrapper(cur)
+
+    def executemany(self, sql, seq_of_params):
+        cur = self._conn.executemany(sql, seq_of_params)
+        return CursorWrapper(cur)
+
+    def commit(self):
+        self._conn.commit()
+
+    def close(self):
+        self._conn.close()
+
+
+class CursorWrapper:
+    def __init__(self, cur):
+        self._cur = cur
+        self._columns = [d[0] for d in (cur.description or [])]
+
+    def fetchone(self):
+        row = self._cur.fetchone()
+        if row is None:
+            return None
+        return RowWrapper(self._columns, row)
+
+    def fetchall(self):
+        rows = self._cur.fetchall()
+        return [RowWrapper(self._columns, r) for r in rows]
+
+    @property
+    def lastrowid(self):
+        return self._cur.lastrowid
+
+
+def make_connection():
+    if USE_TURSO:
+        raw = libsql.connect(database=TURSO_DATABASE_URL, auth_token=TURSO_AUTH_TOKEN)
+        return ConnWrapper(raw)
+    raw = sqlite3.connect(DB_PATH)
+    raw.row_factory = sqlite3.Row
+    return raw
+
+
 def get_db():
     if "db" not in g:
-        g.db = sqlite3.connect(DB_PATH)
-        g.db.row_factory = sqlite3.Row
+        g.db = make_connection()
     return g.db
 
 
@@ -29,7 +102,7 @@ def close_db(exception=None):
 
 
 def init_db():
-    db = sqlite3.connect(DB_PATH)
+    db = make_connection()
     db.execute(
         """CREATE TABLE IF NOT EXISTS products (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
