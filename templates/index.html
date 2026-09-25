@@ -6,209 +6,313 @@
 <title>Atlas Supply</title>
 <style>
   :root {
-    --steel: #2b2e33;
-    --steel-dark: #1a1c1f;
-    --amber: #d9822b;
-    --amber-dark: #b5661a;
-    --concrete: #8a8f94;
-    --bg: #f2f1ed;
-    --card: #ffffff;
-    --ok: #3a7d44;
-    --danger: #b23a3a;
-    --text: #1c1d1f;
-    --text-muted: #5b5e63;
-    --border: #d8d6cf;
+    --bg-void: #05070d;
+    --bg-panel: #0c111c;
+    --bg-panel-2: #10182a;
+    --border: #223049;
+    --border-light: #2f4266;
+    --cyan: #34e0ff;
+    --cyan-dim: #1a8ca8;
+    --green: #3ddc84;
+    --amber: #ffb454;
+    --red: #ff5c6c;
+    --text: #eaf2ff;
+    --text-dim: #8fa3c4;
   }
   * { box-sizing: border-box; }
-  body {
+  html, body {
     margin: 0;
-    font-family: 'Segoe UI', Roboto, Arial, sans-serif;
-    background: var(--bg);
+    background: var(--bg-void);
     color: var(--text);
+    font-family: 'Segoe UI', Roboto, Arial, sans-serif;
   }
+  body {
+    background:
+      radial-gradient(ellipse at 20% -10%, rgba(52,224,255,0.08), transparent 50%),
+      radial-gradient(ellipse at 90% 10%, rgba(61,220,132,0.05), transparent 40%),
+      var(--bg-void);
+    min-height: 100vh;
+  }
+
+  /* ---------- HEADER (game HUD style) ---------- */
   header {
-    background: repeating-linear-gradient(135deg, var(--steel-dark), var(--steel-dark) 12px, #222528 12px, #222528 24px);
-    color: #f2f1ed;
-    padding: 2.5rem 1.5rem 2rem;
-    border-bottom: 6px solid var(--amber);
-    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.9rem 1.5rem;
+    background: rgba(10,14,24,0.9);
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(6px);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    flex-wrap: wrap;
   }
-  header h1 {
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .brand .logo-mark {
+    width: 34px;
+    height: 34px;
+    border-radius: 7px;
+    background: linear-gradient(135deg, var(--cyan), var(--cyan-dim));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    color: #04121a;
+    font-size: 1rem;
+    box-shadow: 0 0 18px rgba(52,224,255,0.45);
+  }
+  .brand h1 {
     margin: 0;
-    font-size: 2.2rem;
-    letter-spacing: 3px;
+    font-size: 1.15rem;
+    letter-spacing: 2px;
     text-transform: uppercase;
     font-weight: 800;
+    color: var(--text);
   }
-  header .tag {
-    color: var(--amber);
-    font-weight: 600;
-    letter-spacing: 2px;
-    margin-top: 0.4rem;
-    font-size: 0.9rem;
+  .brand .tag {
+    font-size: 0.68rem;
+    color: var(--text-dim);
+    letter-spacing: 1px;
     text-transform: uppercase;
+    margin-top: 1px;
   }
   nav {
     display: flex;
-    justify-content: center;
-    background: var(--steel);
-    flex-wrap: wrap;
+    gap: 0.3rem;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0.25rem;
   }
   nav button {
     background: none;
     border: none;
-    color: #f2f1ed;
-    padding: 0.9rem 1.4rem;
-    font-size: 0.95rem;
-    font-weight: 600;
-    letter-spacing: 1px;
+    color: var(--text-dim);
+    padding: 0.55rem 1rem;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
     text-transform: uppercase;
     cursor: pointer;
-    border-bottom: 3px solid transparent;
+    border-radius: 7px;
+    transition: background 0.15s, color 0.15s;
   }
+  nav button:hover { color: var(--text); background: rgba(255,255,255,0.04); }
   nav button.active {
-    border-bottom: 3px solid var(--amber);
-    color: var(--amber);
+    background: linear-gradient(135deg, rgba(52,224,255,0.18), rgba(52,224,255,0.05));
+    color: var(--cyan);
+    box-shadow: inset 0 0 0 1px rgba(52,224,255,0.35);
   }
+
   main {
-    max-width: 1000px;
+    max-width: 1100px;
     margin: 0 auto;
     padding: 2rem 1.25rem 4rem;
   }
   .section { display: none; }
-  .section.active { display: block; }
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 1.1rem;
-    margin-top: 1.5rem;
-  }
-  .product-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-left: 6px solid var(--amber);
-    border-radius: 6px;
-    padding: 1.1rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-  .product-card h3 { margin: 0; font-size: 1.05rem; text-transform: uppercase; letter-spacing: 0.5px; }
-  .product-card .unit { color: var(--text-muted); font-size: 0.85rem; }
-  .product-card .price { font-size: 1.4rem; font-weight: 800; color: var(--amber-dark); }
-  .product-card .stock { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
-  .stock.in { color: var(--ok); }
-  .stock.low { color: var(--amber-dark); }
-  .stock.out { color: var(--danger); }
-  .qty-row { display: flex; gap: 0.5rem; align-items: center; margin-top: 0.3rem; }
-  .qty-row input { width: 70px; }
-  button, input, select, textarea { font-family: inherit; font-size: 0.95rem; }
-  input, select, textarea {
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    color: var(--text);
-    padding: 0.55rem 0.65rem;
-  }
-  .btn {
-    background: var(--amber);
-    color: #1a1c1f;
-    border: none;
-    border-radius: 4px;
-    padding: 0.6rem 1rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    cursor: pointer;
-  }
-  .btn:hover { background: var(--amber-dark); }
-  .btn.secondary { background: transparent; border: 1px solid var(--concrete); color: var(--text); }
-  .btn.danger { background: var(--danger); color: #fff; }
-  .btn.small { padding: 0.35rem 0.7rem; font-size: 0.8rem; }
+  .section.active { display: block; animation: fadein 0.25s ease; }
+  @keyframes fadein { from { opacity: 0; transform: translateY(6px);} to { opacity: 1; transform: none; } }
+
   h2.section-title {
     text-transform: uppercase;
     letter-spacing: 2px;
-    font-size: 1.3rem;
-    border-bottom: 3px solid var(--steel);
-    padding-bottom: 0.5rem;
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--text);
+    margin: 0 0 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
   }
-  .cart-box { background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 1.2rem; margin-top: 1.5rem; }
-  .cart-line { display: flex; justify-content: space-between; padding: 0.4rem 0; border-bottom: 1px dashed var(--border); font-size: 0.92rem; }
-  .cart-total { display: flex; justify-content: space-between; font-weight: 800; font-size: 1.2rem; margin-top: 0.8rem; color: var(--amber-dark); }
-  form.order-form { display: grid; gap: 0.8rem; margin-top: 1rem; }
-  label { font-size: 0.82rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 0.25rem; }
-  .error-text { color: var(--danger); font-size: 0.8rem; margin-top: 0.2rem; }
-  .success-box { background: var(--card); border: 1px solid var(--ok); border-left: 6px solid var(--ok); border-radius: 6px; padding: 1.2rem; margin-top: 1.2rem; }
-  table.admin-table { width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: 0.88rem; }
-  table.admin-table th, table.admin-table td { border: 1px solid var(--border); padding: 0.5rem 0.6rem; text-align: left; vertical-align: middle; }
-  table.admin-table th { background: var(--steel); color: #f2f1ed; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.5px; }
-  table.admin-table input { width: 100%; padding: 0.3rem 0.4rem; }
-  .admin-add-card { background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 1.2rem; margin-top: 1.5rem; }
-  .admin-add-card .row { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.7rem; }
-  .lock-screen { max-width: 360px; margin: 3rem auto; background: var(--card); border: 1px solid var(--border); border-left: 6px solid var(--steel); border-radius: 6px; padding: 1.5rem; text-align: center; }
-  .status-pill { display: inline-block; padding: 0.15rem 0.55rem; border-radius: 3px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; }
-  .status-new { background: #d9822b33; color: var(--amber-dark); }
-  .status-done { background: #3a7d4433; color: var(--ok); }
-  .empty-msg { color: var(--text-muted); font-style: italic; padding: 1rem 0; }
-  footer { text-align: center; color: var(--text-muted); font-size: 0.8rem; padding: 1.5rem; }
-  :root {
-    --map-ocean: #dce7ea;
-    --map-land: #c9c3ac;
-    --map-land-border: #9a9375;
+  h2.section-title::before {
+    content: '';
+    width: 4px;
+    height: 18px;
+    background: var(--cyan);
+    box-shadow: 0 0 8px var(--cyan);
+    border-radius: 2px;
   }
-  .map-wrap {
-    background: var(--card);
+  .section-sub { color: var(--text-dim); font-size: 0.88rem; margin: -0.6rem 0 1.4rem; }
+
+  /* ---------- SHOP ---------- */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 1rem;
+  }
+  .product-card {
+    background: linear-gradient(180deg, var(--bg-panel-2), var(--bg-panel));
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.15s, transform 0.15s;
+  }
+  .product-card:hover { border-color: var(--border-light); transform: translateY(-2px); }
+  .product-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--cyan), transparent);
+  }
+  .product-card h3 { margin: 0; font-size: 1rem; letter-spacing: 0.3px; color: var(--text); }
+  .product-card .unit { color: var(--text-dim); font-size: 0.82rem; }
+  .product-card .price { font-size: 1.5rem; font-weight: 800; color: var(--cyan); font-variant-numeric: tabular-nums; }
+  .product-card .stock { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; display: flex; align-items: center; gap: 0.4rem; }
+  .product-card .stock::before { content: ''; width: 7px; height: 7px; border-radius: 50%; }
+  .stock.in { color: var(--green); } .stock.in::before { background: var(--green); box-shadow: 0 0 6px var(--green); }
+  .stock.low { color: var(--amber); } .stock.low::before { background: var(--amber); box-shadow: 0 0 6px var(--amber); }
+  .stock.out { color: var(--red); } .stock.out::before { background: var(--red); box-shadow: 0 0 6px var(--red); }
+  .qty-row { display: flex; gap: 0.5rem; align-items: center; margin-top: 0.3rem; }
+  .qty-row input { width: 64px; }
+
+  /* ---------- SHARED FORM ELEMENTS ---------- */
+  button, input, select, textarea { font-family: inherit; font-size: 0.92rem; }
+  input, select, textarea {
+    background: rgba(0,0,0,0.25);
     border: 1px solid var(--border);
     border-radius: 6px;
-    padding: 0.8rem;
-    margin-top: 1rem;
-    overflow-x: auto;
+    color: var(--text);
+    padding: 0.55rem 0.7rem;
   }
-  #world-map { width: 100%; height: auto; min-width: 500px; display: block; }
-  .map-marker circle {
-    fill: var(--amber);
-    stroke: var(--amber-dark);
-    stroke-width: 1.5;
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--cyan);
+    box-shadow: 0 0 0 2px rgba(52,224,255,0.15);
   }
-  .map-marker text {
-    font-size: 11px;
-    font-weight: 700;
-    fill: var(--steel-dark);
+  .btn {
+    background: linear-gradient(135deg, var(--cyan), var(--cyan-dim));
+    color: #04121a;
+    border: none;
+    border-radius: 6px;
+    padding: 0.65rem 1.1rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    box-shadow: 0 0 14px rgba(52,224,255,0.25);
+    transition: filter 0.15s;
+  }
+  .btn:hover { filter: brightness(1.12); }
+  .btn.secondary { background: transparent; border: 1px solid var(--border-light); color: var(--text); box-shadow: none; }
+  .btn.danger { background: linear-gradient(135deg, var(--red), #b5323f); color: #fff; box-shadow: 0 0 14px rgba(255,92,108,0.25); }
+  .btn.small { padding: 0.35rem 0.7rem; font-size: 0.76rem; }
+  label { font-size: 0.74rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.8px; display: block; margin-bottom: 0.3rem; }
+  .error-text { color: var(--red); font-size: 0.8rem; margin-top: 0.3rem; min-height: 1em; }
+
+  /* ---------- CART ---------- */
+  .cart-box { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 10px; padding: 1.2rem; }
+  .cart-line { display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px dashed var(--border); font-size: 0.9rem; }
+  .cart-total { display: flex; justify-content: space-between; font-weight: 800; font-size: 1.25rem; margin-top: 0.9rem; color: var(--cyan); }
+  form.order-form { display: grid; gap: 1rem; margin-top: 1.3rem; }
+  .success-box { background: var(--bg-panel); border: 1px solid var(--green); border-radius: 10px; padding: 1.2rem; margin-top: 1.2rem; color: var(--text); }
+  .success-box strong { color: var(--green); }
+
+  /* ---------- ADMIN TABLES ---------- */
+  table.admin-table { width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: 0.86rem; }
+  table.admin-table th, table.admin-table td { border: 1px solid var(--border); padding: 0.55rem 0.65rem; text-align: left; vertical-align: middle; }
+  table.admin-table th { background: rgba(255,255,255,0.03); color: var(--text-dim); text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.6px; }
+  table.admin-table input { width: 100%; padding: 0.35rem 0.5rem; }
+  .admin-add-card { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 10px; padding: 1.2rem; margin-top: 1.3rem; }
+  .admin-add-card .row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.7rem; }
+  .lock-screen { max-width: 380px; margin: 3rem auto; background: var(--bg-panel); border: 1px solid var(--border); border-radius: 12px; padding: 2rem; text-align: center; }
+  .status-pill { display: inline-block; padding: 0.15rem 0.6rem; border-radius: 20px; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+  .status-new { background: rgba(255,180,84,0.15); color: var(--amber); }
+  .status-done { background: rgba(61,220,132,0.15); color: var(--green); }
+  .empty-msg { color: var(--text-dim); font-style: italic; padding: 1rem 0; }
+
+  /* ---------- GLOBE ---------- */
+  .globe-wrap {
+    background: radial-gradient(ellipse at 50% 30%, rgba(52,224,255,0.06), transparent 60%), var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 0;
+    margin-bottom: 1.3rem;
+    position: relative;
+    overflow: hidden;
+  }
+  #globe-canvas-holder {
+    width: 100%;
+    height: 480px;
+    display: block;
+    cursor: grab;
+    touch-action: none;
+  }
+  #globe-canvas-holder:active { cursor: grabbing; }
+  .globe-hint {
+    position: absolute;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    background: rgba(0,0,0,0.4);
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    letter-spacing: 0.5px;
+    pointer-events: none;
+  }
+  .globe-loading {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-dim);
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
   }
   .region-list {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 0.7rem;
-    margin-top: 1.2rem;
   }
   .region-chip {
-    background: var(--card);
+    background: var(--bg-panel);
     border: 1px solid var(--border);
-    border-left: 4px solid var(--amber);
-    border-radius: 4px;
-    padding: 0.6rem 0.8rem;
-    font-size: 0.88rem;
+    border-left: 3px solid var(--cyan);
+    border-radius: 6px;
+    padding: 0.65rem 0.85rem;
+    font-size: 0.86rem;
   }
+
+  footer { text-align: center; color: var(--text-dim); font-size: 0.78rem; padding: 2rem 1rem; border-top: 1px solid var(--border); margin-top: 2rem; }
 </style>
 </head>
 <body>
 
 <header>
-  <h1>Atlas Supply</h1>
-  <div class="tag">Building materials &amp; resources for Capital Rift</div>
+  <div class="brand">
+    <div class="logo-mark">AS</div>
+    <div>
+      <h1>Atlas Supply</h1>
+      <div class="tag">Global logistics &middot; Capital Rift</div>
+    </div>
+  </div>
+  <nav>
+    <button class="nav-btn active" data-target="shop">Shop</button>
+    <button class="nav-btn" data-target="cart">Cart (<span id="cart-count">0</span>)</button>
+    <button class="nav-btn" data-target="delivery">Delivery Map</button>
+    <button class="nav-btn" data-target="admin">Admin</button>
+  </nav>
 </header>
-
-<nav>
-  <button class="nav-btn active" data-target="shop">Shop</button>
-  <button class="nav-btn" data-target="cart">Cart (<span id="cart-count">0</span>)</button>
-  <button class="nav-btn" data-target="delivery">Delivery Map</button>
-  <button class="nav-btn" data-target="admin">Admin</button>
-</nav>
 
 <main>
 
   <section id="shop" class="section active">
     <h2 class="section-title">Current stock</h2>
+    <p class="section-sub">Materials available for pickup or delivery.</p>
     <div id="product-grid" class="grid"></div>
   </section>
 
@@ -239,21 +343,20 @@
 
   <section id="delivery" class="section">
     <h2 class="section-title">Where we deliver</h2>
-    <p style="color:var(--text-muted); font-size:0.9rem; margin-top:0.6rem;">Atlas Supply ships to the following locations worldwide.</p>
-    <div class="map-wrap">
-      <svg id="world-map" viewBox="0 0 1000 500" xmlns="http://www.w3.org/2000/svg">
-        <rect x="0" y="0" width="1000" height="500" fill="var(--map-ocean)"></rect>
-        <g id="continents" fill="var(--map-land)" stroke="var(--map-land-border)" stroke-width="1"></g>
-        <g id="region-markers"></g>
-      </svg>
+    <p class="section-sub">Drag to rotate the globe. Markers show every location Atlas Supply ships to.</p>
+    <div class="globe-wrap">
+      <div id="globe-canvas-holder">
+        <div class="globe-loading" id="globe-loading">Loading world data&hellip;</div>
+      </div>
+      <div class="globe-hint">Drag to rotate &middot; scroll to zoom</div>
     </div>
     <div id="region-list" class="region-list"></div>
   </section>
 
   <section id="admin" class="section">
     <div id="admin-lock" class="lock-screen">
-      <h2 class="section-title" style="border:none;">Admin access</h2>
-      <p style="color:var(--text-muted); font-size:0.85rem;">Enter password to manage products and orders.</p>
+      <h2 class="section-title" style="justify-content:center;">Admin access</h2>
+      <p style="color:var(--text-dim); font-size:0.85rem;">Enter password to manage products and orders.</p>
       <input type="password" id="admin-password" placeholder="Password" style="width:100%; margin-bottom:0.6rem;">
       <div class="error-text" id="err-password"></div>
       <button class="btn" id="admin-login-btn" style="width:100%;">Log in</button>
@@ -284,7 +387,7 @@
         <button class="btn" id="add-product-btn" style="margin-top:0.7rem;">Add product</button>
       </div>
 
-      <h2 class="section-title" style="margin-top:2rem;">Delivery regions</h2>
+      <h2 class="section-title" style="margin-top:2.2rem;">Delivery regions</h2>
       <table class="admin-table">
         <thead>
           <tr><th>Location</th><th>Lat</th><th>Lon</th><th></th></tr>
@@ -299,15 +402,15 @@
           <input type="number" id="new-region-lat" placeholder="Latitude" step="0.0001" min="-90" max="90">
           <input type="number" id="new-region-lon" placeholder="Longitude" step="0.0001" min="-180" max="180">
         </div>
-        <p style="color:var(--text-muted); font-size:0.78rem; margin:0.5rem 0 0;">Tip: search "[city name] latitude longitude" to find coordinates.</p>
+        <p style="color:var(--text-dim); font-size:0.78rem; margin:0.5rem 0 0;">Tip: search "[city name] latitude longitude" to find coordinates.</p>
         <div class="error-text" id="err-new-region"></div>
         <button class="btn" id="add-region-btn" style="margin-top:0.7rem;">Add location</button>
       </div>
 
-      <h2 class="section-title" style="margin-top:2rem;">Incoming orders</h2>
+      <h2 class="section-title" style="margin-top:2.2rem;">Incoming orders</h2>
       <div id="admin-orders"></div>
 
-      <h2 class="section-title" style="margin-top:2rem;">Settings</h2>
+      <h2 class="section-title" style="margin-top:2.2rem;">Settings</h2>
       <div class="admin-add-card">
         <label>Change admin password</label>
         <div class="row">
@@ -324,6 +427,7 @@
 
 <footer>Atlas Supply &mdash; internal trading site for Capital Rift</footer>
 
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
 <script>
 (function () {
   var STOCK_LABELS = { in: 'In stock', low: 'Low stock', out: 'Out of stock' };
@@ -349,76 +453,10 @@
       btn.classList.add('active');
       document.getElementById(btn.dataset.target).classList.add('active');
       if (btn.dataset.target === 'cart') renderCart();
-      if (btn.dataset.target === 'delivery') loadDeliveryRegions();
+      if (btn.dataset.target === 'delivery') initGlobeIfNeeded();
       if (btn.dataset.target === 'admin') checkSessionAndRenderAdmin();
     });
   });
-
-  // ---------- WORLD MAP (simplified continent silhouettes, equirectangular-ish) ----------
-  // Coordinates are simplified polygon outlines, not survey-accurate borders.
-  var CONTINENT_PATHS = [
-    // North America
-    "M60,90 L120,60 L180,65 L230,90 L250,120 L240,160 L210,190 L190,230 L160,250 L120,240 L90,210 L70,170 L55,130 Z",
-    // South America
-    "M200,270 L230,260 L250,290 L260,340 L245,400 L225,440 L205,430 L195,370 L190,320 Z",
-    // Europe
-    "M470,80 L520,70 L560,85 L570,110 L545,130 L520,125 L490,140 L470,115 Z",
-    // Africa
-    "M480,150 L540,145 L570,180 L575,230 L555,290 L525,340 L500,335 L490,280 L470,230 L465,190 Z",
-    // Asia
-    "M580,60 L680,50 L780,70 L850,100 L870,140 L820,170 L760,160 L700,190 L650,170 L600,150 L575,110 L580,80 Z",
-    // Australia
-    "M780,320 L840,310 L870,335 L855,365 L800,370 L775,345 Z"
-  ];
-
-  function drawContinents() {
-    var g = document.getElementById('continents');
-    g.innerHTML = '';
-    CONTINENT_PATHS.forEach(function (d) {
-      var path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-      path.setAttribute('d', d);
-      g.appendChild(path);
-    });
-  }
-
-  // Simple equirectangular projection: lon -180..180 -> x 0..1000, lat 90..-90 -> y 0..500
-  function projectLatLon(lat, lon) {
-    var x = (lon + 180) / 360 * 1000;
-    var y = (90 - lat) / 180 * 500;
-    return { x: x, y: y };
-  }
-
-  function loadDeliveryRegions() {
-    drawContinents();
-    api('/api/delivery-regions').then(function (res) {
-      var regions = res.data || [];
-      var markersGroup = document.getElementById('region-markers');
-      markersGroup.innerHTML = '';
-      regions.forEach(function (r) {
-        var p = projectLatLon(r.lat, r.lon);
-        var g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-        g.setAttribute('class', 'map-marker');
-        var circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        circle.setAttribute('cx', p.x);
-        circle.setAttribute('cy', p.y);
-        circle.setAttribute('r', 6);
-        var title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
-        title.textContent = r.label;
-        g.appendChild(circle);
-        g.appendChild(title);
-        markersGroup.appendChild(g);
-      });
-
-      var listEl = document.getElementById('region-list');
-      if (regions.length === 0) {
-        listEl.innerHTML = '<div class="empty-msg">No delivery locations set yet.</div>';
-      } else {
-        listEl.innerHTML = regions.map(function (r) {
-          return '<div class="region-chip">' + escapeHtml(r.label) + (r.note ? '<br><span style="color:var(--text-muted); font-size:0.8rem;">' + escapeHtml(r.note) + '</span>' : '') + '</div>';
-        }).join('');
-      }
-    });
-  }
 
   // ---------- SHOP ----------
   function loadProducts() {
@@ -611,56 +649,6 @@
     });
   });
 
-  document.getElementById('add-region-btn').addEventListener('click', function () {
-    var labelEl = document.getElementById('new-region-label');
-    var latEl = document.getElementById('new-region-lat');
-    var lonEl = document.getElementById('new-region-lon');
-    var err = document.getElementById('err-new-region');
-    err.textContent = '';
-
-    api('/api/admin/delivery-regions', {
-      method: 'POST',
-      body: JSON.stringify({
-        label: labelEl.value.trim(),
-        lat: latEl.value,
-        lon: lonEl.value
-      })
-    }).then(function (res) {
-      if (!res.ok) {
-        err.textContent = res.data.error || 'Please provide a location and valid coordinates.';
-        return;
-      }
-      labelEl.value = '';
-      latEl.value = '';
-      lonEl.value = '';
-      renderAdminRegions();
-    });
-  });
-
-  function renderAdminRegions() {
-    api('/api/delivery-regions').then(function (res) {
-      var regions = res.data || [];
-      var body = document.getElementById('admin-region-body');
-      body.innerHTML = '';
-      regions.forEach(function (r) {
-        var tr = document.createElement('tr');
-        tr.innerHTML =
-          '<td>' + escapeHtml(r.label) + '</td>' +
-          '<td>' + r.lat + '</td>' +
-          '<td>' + r.lon + '</td>' +
-          '<td><button class="btn danger small" data-remove-region="' + r.id + '">Delete</button></td>';
-        body.appendChild(tr);
-      });
-      body.querySelectorAll('[data-remove-region]').forEach(function (btn) {
-        btn.addEventListener('click', function () {
-          api('/api/admin/delivery-regions/' + btn.dataset.removeRegion, { method: 'DELETE' }).then(function () {
-            renderAdminRegions();
-          });
-        });
-      });
-    });
-  }
-
   function renderAdmin() {
     renderAdminRegions();
     api('/api/products').then(function (res) {
@@ -687,7 +675,7 @@
           var id = el.dataset.id;
           var field = el.dataset.field;
           var payload = {};
-          payload[field] = field === 'price' ? el.value : el.value;
+          payload[field] = el.value;
           api('/api/admin/products/' + id, { method: 'PATCH', body: JSON.stringify(payload) }).then(function () {
             loadProducts();
           });
@@ -722,9 +710,9 @@
             '<strong>' + escapeHtml(o.customer_name) + '</strong>' +
             '<span class="status-pill ' + pillClass + '">' + pillLabel + '</span>' +
           '</div>' +
-          '<div style="color:var(--text-muted); font-size:0.82rem; margin:0.3rem 0;">Contact: ' + escapeHtml(o.contact) + ' &middot; ' + o.created_at + '</div>' +
+          '<div style="color:var(--text-dim); font-size:0.82rem; margin:0.3rem 0;">Contact: ' + escapeHtml(o.contact) + ' &middot; ' + o.created_at + '</div>' +
           '<div style="font-size:0.9rem;">' + itemsHtml + '</div>' +
-          (o.note ? '<div style="font-size:0.85rem; margin-top:0.3rem; color:var(--text-muted);">Note: ' + escapeHtml(o.note) + '</div>' : '') +
+          (o.note ? '<div style="font-size:0.85rem; margin-top:0.3rem; color:var(--text-dim);">Note: ' + escapeHtml(o.note) + '</div>' : '') +
           '<div style="display:flex; justify-content:space-between; align-items:center; margin-top:0.5rem;">' +
             '<strong>' + fmtPrice(o.total) + '</strong>' +
             '<button class="btn small ' + (o.status === 'done' ? 'secondary' : '') + '" data-toggle="' + o.id + '" data-status="' + o.status + '">' +
@@ -745,7 +733,291 @@
     });
   }
 
+  document.getElementById('add-region-btn').addEventListener('click', function () {
+    var labelEl = document.getElementById('new-region-label');
+    var latEl = document.getElementById('new-region-lat');
+    var lonEl = document.getElementById('new-region-lon');
+    var err = document.getElementById('err-new-region');
+    err.textContent = '';
+
+    api('/api/admin/delivery-regions', {
+      method: 'POST',
+      body: JSON.stringify({
+        label: labelEl.value.trim(),
+        lat: latEl.value,
+        lon: lonEl.value
+      })
+    }).then(function (res) {
+      if (!res.ok) {
+        err.textContent = res.data.error || 'Please provide a location and valid coordinates.';
+        return;
+      }
+      labelEl.value = '';
+      latEl.value = '';
+      lonEl.value = '';
+      renderAdminRegions();
+      globeRegionsCache = null;
+      if (globeInited) loadRegionsIntoGlobe();
+    });
+  });
+
+  function renderAdminRegions() {
+    api('/api/delivery-regions').then(function (res) {
+      var regions = res.data || [];
+      var body = document.getElementById('admin-region-body');
+      body.innerHTML = '';
+      regions.forEach(function (r) {
+        var tr = document.createElement('tr');
+        tr.innerHTML =
+          '<td>' + escapeHtml(r.label) + '</td>' +
+          '<td>' + r.lat + '</td>' +
+          '<td>' + r.lon + '</td>' +
+          '<td><button class="btn danger small" data-remove-region="' + r.id + '">Delete</button></td>';
+        body.appendChild(tr);
+      });
+      body.querySelectorAll('[data-remove-region]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          api('/api/admin/delivery-regions/' + btn.dataset.removeRegion, { method: 'DELETE' }).then(function () {
+            renderAdminRegions();
+            globeRegionsCache = null;
+            if (globeInited) loadRegionsIntoGlobe();
+          });
+        });
+      });
+    });
+  }
+
   function escapeAttr(s) { return String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;'); }
+
+  /* =====================================================================
+     3D GLOBE (Three.js) with real country borders + delivery markers
+     ===================================================================== */
+  var GLOBE_RADIUS = 100;
+  var globeInited = false;
+  var globeScene, globeCamera, globeRenderer, globeGroup, globeAnimId;
+  var globeRegionsCache = null;
+  var isDragging = false, lastX = 0, lastY = 0;
+  var rotY = 0.6, rotX = -0.3;
+  var zoomDist = 260;
+
+  function latLonToVec3(lat, lon, radius) {
+    var phi = (90 - lat) * (Math.PI / 180);
+    var theta = (lon + 180) * (Math.PI / 180);
+    var x = -(radius * Math.sin(phi) * Math.cos(theta));
+    var z = (radius * Math.sin(phi) * Math.sin(theta));
+    var y = (radius * Math.cos(phi));
+    return new THREE.Vector3(x, y, z);
+  }
+
+  // Minimal TopoJSON arc decoder (avoids needing the topojson-client library)
+  function decodeTopoArcs(topology) {
+    var arcs = topology.arcs;
+    var transform = topology.transform;
+    var scale = transform ? transform.scale : [1, 1];
+    var translate = transform ? transform.translate : [0, 0];
+    return arcs.map(function (arc) {
+      var x = 0, y = 0;
+      return arc.map(function (point) {
+        x += point[0];
+        y += point[1];
+        return [x * scale[0] + translate[0], y * scale[1] + translate[1]];
+      });
+    });
+  }
+
+  function arcToCoords(decodedArcs, arcIndex) {
+    var i = arcIndex < 0 ? ~arcIndex : arcIndex;
+    var coords = decodedArcs[i].slice();
+    if (arcIndex < 0) coords.reverse();
+    return coords;
+  }
+
+  function ringToCoords(decodedArcs, ring) {
+    var coords = [];
+    ring.forEach(function (arcIndex, idx) {
+      var arcCoords = arcToCoords(decodedArcs, arcIndex);
+      if (idx > 0) arcCoords = arcCoords.slice(1);
+      coords = coords.concat(arcCoords);
+    });
+    return coords;
+  }
+
+  function buildCountryLines(decodedArcs, geometries) {
+    var group = new THREE.Group();
+    var material = new THREE.LineBasicMaterial({ color: 0x2f7d94, transparent: true, opacity: 0.85 });
+
+    function addPolygonRings(rings) {
+      rings.forEach(function (ring) {
+        var coords = ringToCoords(decodedArcs, ring);
+        var points = coords.map(function (c) { return latLonToVec3(c[1], c[0], GLOBE_RADIUS + 0.3); });
+        var geo = new THREE.BufferGeometry().setFromPoints(points);
+        var line = new THREE.Line(geo, material);
+        group.add(line);
+      });
+    }
+
+    geometries.forEach(function (geom) {
+      if (geom.type === 'Polygon') {
+        addPolygonRings(geom.arcs);
+      } else if (geom.type === 'MultiPolygon') {
+        geom.arcs.forEach(function (poly) { addPolygonRings(poly); });
+      }
+    });
+
+    return group;
+  }
+
+  function initGlobeIfNeeded() {
+    if (globeInited) return;
+    globeInited = true;
+
+    var holder = document.getElementById('globe-canvas-holder');
+    var width = holder.clientWidth;
+    var height = holder.clientHeight;
+
+    globeScene = new THREE.Scene();
+    globeCamera = new THREE.PerspectiveCamera(45, width / height, 1, 2000);
+    globeCamera.position.z = zoomDist;
+
+    globeRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    globeRenderer.setSize(width, height);
+    globeRenderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    holder.appendChild(globeRenderer.domElement);
+
+    globeGroup = new THREE.Group();
+    globeScene.add(globeGroup);
+
+    // Ocean sphere
+    var sphereGeo = new THREE.SphereGeometry(GLOBE_RADIUS, 48, 48);
+    var sphereMat = new THREE.MeshBasicMaterial({ color: 0x0a1626, transparent: true, opacity: 0.95 });
+    var sphere = new THREE.Mesh(sphereGeo, sphereMat);
+    globeGroup.add(sphere);
+
+    // Wireframe grid overlay for a HUD feel
+    var wireGeo = new THREE.SphereGeometry(GLOBE_RADIUS + 0.1, 24, 16);
+    var wireMat = new THREE.MeshBasicMaterial({ color: 0x1c3a52, wireframe: true, transparent: true, opacity: 0.35 });
+    var wireSphere = new THREE.Mesh(wireGeo, wireMat);
+    globeGroup.add(wireSphere);
+
+    // Outer glow ring (atmosphere feel)
+    var glowGeo = new THREE.SphereGeometry(GLOBE_RADIUS + 4, 32, 32);
+    var glowMat = new THREE.MeshBasicMaterial({ color: 0x34e0ff, transparent: true, opacity: 0.045, side: THREE.BackSide });
+    var glow = new THREE.Mesh(glowGeo, glowMat);
+    globeGroup.add(glow);
+
+    globeGroup.rotation.x = rotX;
+    globeGroup.rotation.y = rotY;
+
+    // Drag to rotate
+    holder.addEventListener('pointerdown', function (e) {
+      isDragging = true;
+      lastX = e.clientX;
+      lastY = e.clientY;
+      holder.setPointerCapture(e.pointerId);
+    });
+    holder.addEventListener('pointermove', function (e) {
+      if (!isDragging) return;
+      var dx = e.clientX - lastX;
+      var dy = e.clientY - lastY;
+      rotY += dx * 0.005;
+      rotX += dy * 0.005;
+      rotX = Math.max(-1.4, Math.min(1.4, rotX));
+      globeGroup.rotation.y = rotY;
+      globeGroup.rotation.x = rotX;
+      lastX = e.clientX;
+      lastY = e.clientY;
+    });
+    holder.addEventListener('pointerup', function (e) {
+      isDragging = false;
+      try { holder.releasePointerCapture(e.pointerId); } catch (err) {}
+    });
+    holder.addEventListener('pointerleave', function () { isDragging = false; });
+    holder.addEventListener('wheel', function (e) {
+      e.preventDefault();
+      zoomDist += e.deltaY * 0.15;
+      zoomDist = Math.max(140, Math.min(500, zoomDist));
+      globeCamera.position.z = zoomDist;
+    }, { passive: false });
+
+    window.addEventListener('resize', function () {
+      var w = holder.clientWidth, h = holder.clientHeight;
+      if (!w || !h) return;
+      globeCamera.aspect = w / h;
+      globeCamera.updateProjectionMatrix();
+      globeRenderer.setSize(w, h);
+    });
+
+    function animate() {
+      globeAnimId = requestAnimationFrame(animate);
+      if (!isDragging) rotY += 0.0009;
+      globeGroup.rotation.y = rotY;
+      globeRenderer.render(globeScene, globeCamera);
+    }
+    animate();
+
+    // Load real country borders from a public TopoJSON dataset (Natural Earth, via jsDelivr)
+    fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json')
+      .then(function (r) { return r.json(); })
+      .then(function (topology) {
+        var decodedArcs = decodeTopoArcs(topology);
+        var geometries = topology.objects.countries.geometries;
+        var lines = buildCountryLines(decodedArcs, geometries);
+        globeGroup.add(lines);
+        var loadingEl = document.getElementById('globe-loading');
+        if (loadingEl) loadingEl.style.display = 'none';
+        loadRegionsIntoGlobe();
+      })
+      .catch(function () {
+        var loadingEl = document.getElementById('globe-loading');
+        if (loadingEl) loadingEl.textContent = 'Could not load world map data.';
+        loadRegionsIntoGlobe();
+      });
+  }
+
+  var markerGroup = null;
+
+  function loadRegionsIntoGlobe() {
+    api('/api/delivery-regions').then(function (res) {
+      var regions = res.data || [];
+      globeRegionsCache = regions;
+
+      if (markerGroup) {
+        globeGroup.remove(markerGroup);
+      }
+      markerGroup = new THREE.Group();
+
+      regions.forEach(function (r) {
+        var pos = latLonToVec3(r.lat, r.lon, GLOBE_RADIUS + 1.5);
+        var dotGeo = new THREE.SphereGeometry(2, 12, 12);
+        var dotMat = new THREE.MeshBasicMaterial({ color: 0xffb454 });
+        var dot = new THREE.Mesh(dotGeo, dotMat);
+        dot.position.copy(pos);
+        markerGroup.add(dot);
+
+        // pulsing halo ring
+        var ringGeo = new THREE.RingGeometry(2.6, 4.2, 24);
+        var ringMat = new THREE.MeshBasicMaterial({ color: 0xffb454, transparent: true, opacity: 0.5, side: THREE.DoubleSide });
+        var ring = new THREE.Mesh(ringGeo, ringMat);
+        ring.position.copy(pos);
+        ring.lookAt(0, 0, 0);
+        markerGroup.add(ring);
+      });
+
+      globeGroup.add(markerGroup);
+      renderRegionList(regions);
+    });
+  }
+
+  function renderRegionList(regions) {
+    var listEl = document.getElementById('region-list');
+    if (regions.length === 0) {
+      listEl.innerHTML = '<div class="empty-msg">No delivery locations set yet.</div>';
+      return;
+    }
+    listEl.innerHTML = regions.map(function (r) {
+      return '<div class="region-chip">' + escapeHtml(r.label) + (r.note ? '<br><span style="color:var(--text-dim); font-size:0.8rem;">' + escapeHtml(r.note) + '</span>' : '') + '</div>';
+    }).join('');
+  }
 
   loadProducts();
   renderCartCount();
