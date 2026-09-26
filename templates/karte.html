@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Atlas Supply — Delivery Map</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+{% include '_nav.html' %}
+
+<main>
+  <div class="page">
+    <h2 class="section-title">Where we deliver</h2>
+    <p class="section-sub">Drag to rotate the globe. Red zones are areas we deliver to; green is everywhere else.</p>
+    <div class="globe-wrap">
+      <div id="globe-canvas-holder">
+        <div class="globe-loading" id="globe-loading">Loading world data&hellip;</div>
+      </div>
+      <div class="globe-hint">Drag to rotate &middot; scroll to zoom</div>
+    </div>
+    <div id="region-list" class="region-list"></div>
+  </div>
+</main>
+
+<footer>Atlas Supply &mdash; internal trading site for Capital Rift</footer>
+
+<script src="{{ url_for('static', filename='common.js') }}"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+<script src="{{ url_for('static', filename='globe.js') }}"></script>
+</body>
+</html>

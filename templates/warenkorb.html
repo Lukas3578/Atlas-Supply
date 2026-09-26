@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Atlas Supply — Cart</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+{% include '_nav.html' %}
+
+<main>
+  <div class="page">
+    <h2 class="section-title">Cart &amp; order</h2>
+    <div id="cart-lines" class="cart-box"></div>
+
+    <form class="order-form" id="order-form">
+      <div>
+        <label for="cust-name">Customer name / in-game name</label>
+        <input type="text" id="cust-name" placeholder="e.g. JohnDoe">
+        <div class="error-text" id="err-name"></div>
+      </div>
+      <div>
+        <label for="cust-contact">Contact (Discord)</label>
+        <input type="text" id="cust-contact" placeholder="e.g. john#1234">
+        <div class="error-text" id="err-contact"></div>
+      </div>
+      <div>
+        <label for="cust-note">Note (optional)</label>
+        <textarea id="cust-note" rows="2" placeholder="Delivery location, requests etc."></textarea>
+      </div>
+      <button type="submit" class="btn">Submit order</button>
+    </form>
+
+    <div id="order-success" class="success-box" style="display:none;"></div>
+  </div>
+</main>
+
+<footer>Atlas Supply &mdash; internal trading site for Capital Rift</footer>
+
+<script src="{{ url_for('static', filename='common.js') }}"></script>
+<script src="{{ url_for('static', filename='cart.js') }}"></script>
+</body>
+</html>

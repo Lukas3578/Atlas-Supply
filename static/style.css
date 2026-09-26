@@ -1,0 +1,285 @@
+:root {
+    --bg-void: #05070d;
+    --bg-panel: #0c111c;
+    --bg-panel-2: #10182a;
+    --border: #223049;
+    --border-light: #2f4266;
+    --cyan: #34e0ff;
+    --cyan-dim: #1a8ca8;
+    --green: #3ddc84;
+    --amber: #ffb454;
+    --red: #ff5c6c;
+    --text: #eaf2ff;
+    --text-dim: #8fa3c4;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    background: var(--bg-void);
+    color: var(--text);
+    font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+  }
+  body {
+    background:
+      radial-gradient(ellipse at 20% -10%, rgba(52,224,255,0.08), transparent 50%),
+      radial-gradient(ellipse at 90% 10%, rgba(61,220,132,0.05), transparent 40%),
+      var(--bg-void);
+    min-height: 100vh;
+  }
+
+  /* ---------- HEADER (game HUD style) ---------- */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.9rem 1.5rem;
+    background: rgba(10,14,24,0.9);
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(6px);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    flex-wrap: wrap;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .brand .logo-mark {
+    width: 34px;
+    height: 34px;
+    border-radius: 7px;
+    background: linear-gradient(135deg, var(--cyan), var(--cyan-dim));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    color: #04121a;
+    font-size: 1rem;
+    box-shadow: 0 0 18px rgba(52,224,255,0.45);
+  }
+  .brand h1 {
+    margin: 0;
+    font-size: 1.15rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-weight: 800;
+    color: var(--text);
+  }
+  .brand .tag {
+    font-size: 0.68rem;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-top: 1px;
+  }
+  nav {
+    display: flex;
+    gap: 0.3rem;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 0.25rem;
+  }
+  .nav-btn {
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    padding: 0.55rem 1rem;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-radius: 7px;
+    transition: background 0.15s, color 0.15s;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+  }
+  .nav-btn:hover { color: var(--text); background: rgba(255,255,255,0.04); }
+  .nav-btn.active {
+    background: linear-gradient(135deg, rgba(52,224,255,0.18), rgba(52,224,255,0.05));
+    color: var(--cyan);
+    box-shadow: inset 0 0 0 1px rgba(52,224,255,0.35);
+  }
+
+  main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 2rem 1.25rem 4rem;
+  }
+  .page { animation: fadein 0.25s ease; }
+  @keyframes fadein { from { opacity: 0; transform: translateY(6px);} to { opacity: 1; transform: none; } }
+
+  h2.section-title {
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--text);
+    margin: 0 0 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  h2.section-title::before {
+    content: '';
+    width: 4px;
+    height: 18px;
+    background: var(--cyan);
+    box-shadow: 0 0 8px var(--cyan);
+    border-radius: 2px;
+  }
+  .section-sub { color: var(--text-dim); font-size: 0.88rem; margin: -0.6rem 0 1.4rem; }
+
+  /* ---------- SHOP ---------- */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 1rem;
+  }
+  .product-card {
+    background: linear-gradient(180deg, var(--bg-panel-2), var(--bg-panel));
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.15s, transform 0.15s;
+  }
+  .product-card:hover { border-color: var(--border-light); transform: translateY(-2px); }
+  .product-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--cyan), transparent);
+  }
+  .product-card h3 { margin: 0; font-size: 1rem; letter-spacing: 0.3px; color: var(--text); }
+  .product-card .unit { color: var(--text-dim); font-size: 0.82rem; }
+  .product-card .price { font-size: 1.5rem; font-weight: 800; color: var(--cyan); font-variant-numeric: tabular-nums; }
+  .product-card .stock { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px; display: flex; align-items: center; gap: 0.4rem; }
+  .product-card .stock::before { content: ''; width: 7px; height: 7px; border-radius: 50%; }
+  .stock.in { color: var(--green); } .stock.in::before { background: var(--green); box-shadow: 0 0 6px var(--green); }
+  .stock.low { color: var(--amber); } .stock.low::before { background: var(--amber); box-shadow: 0 0 6px var(--amber); }
+  .stock.out { color: var(--red); } .stock.out::before { background: var(--red); box-shadow: 0 0 6px var(--red); }
+  .qty-row { display: flex; gap: 0.5rem; align-items: center; margin-top: 0.3rem; }
+  .qty-row input { width: 64px; }
+
+  /* ---------- SHARED FORM ELEMENTS ---------- */
+  button, input, select, textarea { font-family: inherit; font-size: 0.92rem; }
+  input, select, textarea {
+    background: rgba(0,0,0,0.25);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    padding: 0.55rem 0.7rem;
+  }
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--cyan);
+    box-shadow: 0 0 0 2px rgba(52,224,255,0.15);
+  }
+  .btn {
+    background: linear-gradient(135deg, var(--cyan), var(--cyan-dim));
+    color: #04121a;
+    border: none;
+    border-radius: 6px;
+    padding: 0.65rem 1.1rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    box-shadow: 0 0 14px rgba(52,224,255,0.25);
+    transition: filter 0.15s;
+  }
+  .btn:hover { filter: brightness(1.12); }
+  .btn.secondary { background: transparent; border: 1px solid var(--border-light); color: var(--text); box-shadow: none; }
+  .btn.danger { background: linear-gradient(135deg, var(--red), #b5323f); color: #fff; box-shadow: 0 0 14px rgba(255,92,108,0.25); }
+  .btn.small { padding: 0.35rem 0.7rem; font-size: 0.76rem; }
+  label { font-size: 0.74rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.8px; display: block; margin-bottom: 0.3rem; }
+  .error-text { color: var(--red); font-size: 0.8rem; margin-top: 0.3rem; min-height: 1em; }
+
+  /* ---------- CART ---------- */
+  .cart-box { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 10px; padding: 1.2rem; }
+  .cart-line { display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px dashed var(--border); font-size: 0.9rem; }
+  .cart-total { display: flex; justify-content: space-between; font-weight: 800; font-size: 1.25rem; margin-top: 0.9rem; color: var(--cyan); }
+  form.order-form { display: grid; gap: 1rem; margin-top: 1.3rem; }
+  .success-box { background: var(--bg-panel); border: 1px solid var(--green); border-radius: 10px; padding: 1.2rem; margin-top: 1.2rem; color: var(--text); }
+  .success-box strong { color: var(--green); }
+
+  /* ---------- ADMIN TABLES ---------- */
+  table.admin-table { width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: 0.86rem; }
+  table.admin-table th, table.admin-table td { border: 1px solid var(--border); padding: 0.55rem 0.65rem; text-align: left; vertical-align: middle; }
+  table.admin-table th { background: rgba(255,255,255,0.03); color: var(--text-dim); text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.6px; }
+  table.admin-table input { width: 100%; padding: 0.35rem 0.5rem; }
+  .admin-add-card { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 10px; padding: 1.2rem; margin-top: 1.3rem; }
+  .admin-add-card .row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.7rem; }
+  .lock-screen { max-width: 380px; margin: 3rem auto; background: var(--bg-panel); border: 1px solid var(--border); border-radius: 12px; padding: 2rem; text-align: center; }
+  .status-pill { display: inline-block; padding: 0.15rem 0.6rem; border-radius: 20px; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+  .status-new { background: rgba(255,180,84,0.15); color: var(--amber); }
+  .status-done { background: rgba(61,220,132,0.15); color: var(--green); }
+  .empty-msg { color: var(--text-dim); font-style: italic; padding: 1rem 0; }
+
+  /* ---------- GLOBE ---------- */
+  .globe-wrap {
+    background: radial-gradient(ellipse at 50% 30%, rgba(52,224,255,0.06), transparent 60%), var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 0;
+    margin-bottom: 1.3rem;
+    position: relative;
+    overflow: hidden;
+  }
+  #globe-canvas-holder {
+    width: 100%;
+    height: 480px;
+    display: block;
+    cursor: grab;
+    touch-action: none;
+  }
+  #globe-canvas-holder:active { cursor: grabbing; }
+  .globe-hint {
+    position: absolute;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    background: rgba(0,0,0,0.4);
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    letter-spacing: 0.5px;
+    pointer-events: none;
+  }
+  .globe-loading {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-dim);
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+  }
+  .region-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 0.7rem;
+  }
+  .region-chip {
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--cyan);
+    border-radius: 6px;
+    padding: 0.65rem 0.85rem;
+    font-size: 0.86rem;
+  }
+
+  footer { text-align: center; color: var(--text-dim); font-size: 0.78rem; padding: 2rem 1rem; border-top: 1px solid var(--border); margin-top: 2rem; }

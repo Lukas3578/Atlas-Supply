@@ -8,6 +8,10 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-change-me")
+app.config.update(
+    SESSION_COOKIE_SAMESITE="Lax",
+    SESSION_COOKIE_SECURE=os.environ.get("RENDER", "") != "" or os.environ.get("FORCE_SECURE_COOKIE") == "1",
+)
 
 TURSO_DATABASE_URL = os.environ.get("TURSO_DATABASE_URL")
 TURSO_AUTH_TOKEN = os.environ.get("TURSO_AUTH_TOKEN")
@@ -136,9 +140,16 @@ def init_db():
             label TEXT NOT NULL,
             lat REAL NOT NULL,
             lon REAL NOT NULL,
+            radius_km REAL NOT NULL DEFAULT 30,
             note TEXT
         )"""
     )
+    # migrate older databases that were created before radius_km existed
+    try:
+        db.execute("ALTER TABLE delivery_regions ADD COLUMN radius_km REAL NOT NULL DEFAULT 30")
+        db.commit()
+    except Exception:
+        pass
 
     # seed default admin password if none exists yet
     row = db.execute("SELECT * FROM admin WHERE id = 1").fetchone()
@@ -164,11 +175,9 @@ def init_db():
     count = db.execute("SELECT COUNT(*) FROM delivery_regions").fetchone()[0]
     if count == 0:
         db.executemany(
-            "INSERT INTO delivery_regions (label, lat, lon, note) VALUES (?, ?, ?, ?)",
+            "INSERT INTO delivery_regions (label, lat, lon, radius_km, note) VALUES (?, ?, ?, ?, ?)",
             [
-                ("Berlin, Germany", 52.52, 13.405, ""),
-                ("New York, USA", 40.7128, -74.006, ""),
-                ("London, UK", 51.5074, -0.1278, ""),
+                ("Munich, Germany", 48.1351, 11.5820, 30, ""),
             ],
         )
 
@@ -191,6 +200,21 @@ def login_required(view):
 @app.route("/")
 def index():
     return render_template("index.html")
+
+
+@app.route("/warenkorb")
+def warenkorb_page():
+    return render_template("warenkorb.html")
+
+
+@app.route("/karte")
+def karte_page():
+    return render_template("karte.html")
+
+
+@app.route("/admin")
+def admin_page():
+    return render_template("admin.html")
 
 
 # ---------- public product listing ----------
@@ -220,19 +244,60 @@ def add_delivery_region():
     try:
         lat = float(data.get("lat"))
         lon = float(data.get("lon"))
+        radius_km = float(data.get("radius_km", 30))
     except (TypeError, ValueError):
-        return jsonify({"error": "invalid coordinates"}), 400
+        return jsonify({"error": "invalid coordinates or radius"}), 400
 
-    if not label or lat < -90 or lat > 90 or lon < -180 or lon > 180:
+    if not label or lat < -90 or lat > 90 or lon < -180 or lon > 180 or radius_km <= 0:
         return jsonify({"error": "invalid region data"}), 400
 
     db = get_db()
     cur = db.execute(
-        "INSERT INTO delivery_regions (label, lat, lon, note) VALUES (?, ?, ?, ?)",
-        (label, lat, lon, note),
+        "INSERT INTO delivery_regions (label, lat, lon, radius_km, note) VALUES (?, ?, ?, ?, ?)",
+        (label, lat, lon, radius_km, note),
     )
     db.commit()
     return jsonify({"ok": True, "id": cur.lastrowid}), 201
+
+
+@app.route("/api/admin/delivery-regions/<int:region_id>", methods=["PATCH"])
+@login_required
+def update_delivery_region(region_id):
+    data = request.get_json(silent=True) or {}
+    db = get_db()
+    row = db.execute("SELECT * FROM delivery_regions WHERE id = ?", (region_id,)).fetchone()
+    if not row:
+        return jsonify({"error": "not found"}), 404
+
+    label = data.get("label", row["label"])
+    lat = row["lat"]
+    lon = row["lon"]
+    radius_km = row["radius_km"]
+    if "lat" in data:
+        try:
+            lat = float(data.get("lat"))
+        except (TypeError, ValueError):
+            return jsonify({"error": "invalid lat"}), 400
+    if "lon" in data:
+        try:
+            lon = float(data.get("lon"))
+        except (TypeError, ValueError):
+            return jsonify({"error": "invalid lon"}), 400
+    if "radius_km" in data:
+        try:
+            radius_km = float(data.get("radius_km"))
+        except (TypeError, ValueError):
+            return jsonify({"error": "invalid radius"}), 400
+
+    if not str(label).strip() or lat < -90 or lat > 90 or lon < -180 or lon > 180 or radius_km <= 0:
+        return jsonify({"error": "invalid region data"}), 400
+
+    db.execute(
+        "UPDATE delivery_regions SET label = ?, lat = ?, lon = ?, radius_km = ? WHERE id = ?",
+        (str(label).strip(), lat, lon, radius_km, region_id),
+    )
+    db.commit()
+    return jsonify({"ok": True})
 
 
 @app.route("/api/admin/delivery-regions/<int:region_id>", methods=["DELETE"])

@@ -2,9 +2,40 @@
 
 Flask backend + frontend for the Atlas Supply shop (Capital Rift). Orders,
 products, and delivery regions are stored in a shared database, so every
-visitor sees the same data and every order lands in one place. The admin
-panel uses a real server-side session with a hashed password (no
+visitor sees the same data and every order lands in one place. Every part
+of the site is its own page with its own URL. The admin panel is
+protected by a real server-side session with a hashed password (no
 client-side PIN).
+
+## Pages
+
+| URL          | Page                                               |
+|--------------|-----------------------------------------------------|
+| `/`          | Shop — product listing                              |
+| `/warenkorb` | Cart — review items and submit an order              |
+| `/karte`     | Delivery Map — rotating 3D globe with delivery zones |
+| `/admin`     | Admin panel — products, regions, orders, password    |
+
+The cart is kept in the browser's `localStorage` so it survives navigating
+between these separate pages; placing an order still sends everything to
+the server.
+
+## Project structure
+
+```
+app.py                      Flask app: routes, database, auth
+templates/_nav.html         Shared header/nav, included on every page
+templates/index.html        Shop page (/)
+templates/warenkorb.html    Cart page (/warenkorb)
+templates/karte.html        Delivery map page (/karte)
+templates/admin.html        Admin panel (/admin)
+static/style.css            Shared styles for all pages
+static/common.js            Shared helpers: API calls, cart storage, nav highlighting
+static/shop.js               Shop page logic (product grid)
+static/cart.js               Cart page logic (order form)
+static/globe.js               Delivery map logic (3D globe)
+static/admin.js              Admin panel logic (login, product & region CRUD)
+```
 
 ## Database: Turso or local SQLite
 
@@ -59,8 +90,10 @@ export TURSO_AUTH_TOKEN="your-token-here"
 python app.py
 ```
 
-Open http://localhost:5000. Log in to the Admin tab with the password above,
-then change it right away under Admin > Settings.
+Open http://localhost:5000 for the shop. The other pages are at
+http://localhost:5000/warenkorb, http://localhost:5000/karte, and
+http://localhost:5000/admin. Log in with the password above, then change
+it right away under Settings.
 
 ## Deploying on Render
 
@@ -76,32 +109,40 @@ then change it right away under Admin > Settings.
    - `TURSO_DATABASE_URL` — your Turso database URL (e.g.
      `libsql://atlas-supply-yourname.turso.io`)
    - `TURSO_AUTH_TOKEN` — your Turso auth token
-5. Deploy. Render gives you a `https://your-app.onrender.com` URL.
+5. Deploy. Render gives you a `https://your-app.onrender.com` URL, and the
+   admin panel lives at `https://your-app.onrender.com/admin`.
 
 With Turso configured, there's no persistent-disk concern: your data lives
 in Turso's cloud database, not on Render's filesystem, so it survives every
 redeploy and restart automatically.
 
-## Admin panel
+Render sets its own `RENDER` environment variable automatically, which this
+app uses to enable `Secure` session cookies (required for login to work
+correctly over HTTPS). You don't need to set this yourself.
 
-- Shop tab: public product listing, no login needed.
-- Cart tab: customers add items and submit an order with their name and
+## Site pages
+
+- **Shop** (`/`): public product listing, no login needed.
+- **Cart**: customers add items and submit an order with their name and
   Discord contact.
-- Delivery Map tab: public world map (simplified continent outlines drawn
-  as inline SVG, no external map tiles needed) showing every location
-  Atlas Supply delivers to.
-- Admin tab: password-protected. Add/edit/delete products, manage delivery
-  locations shown on the map, view and manage incoming orders (mark as
-  done), and change the admin password.
+- **Delivery Map**: a rotating 3D globe with real country borders. Delivery
+  regions are drawn as solid red circles (center point + radius in km);
+  everywhere else on the globe stays green, meaning "we don't deliver
+  there."
+- **Admin** (`/admin`, separate page): password-protected. Add/edit/delete
+  products, manage delivery regions shown on the globe, view and manage
+  incoming orders (mark as done), and change the admin password.
 
-### Adding a delivery location
+### Adding a delivery region
 
-In Admin > Delivery regions, enter a name (e.g. "Paris, France") plus its
-latitude and longitude, then click Add location. If you don't know the
-coordinates offhand, search "[city name] latitude longitude" — any result
-works, decimal degrees like `48.8566, 2.3522`.
+In `/admin` > Delivery regions, enter a name (e.g. "Munich, Germany"), its
+latitude and longitude, and a radius in kilometers (e.g. 30). Everything
+within that radius shows up red on the public globe; everything else stays
+green. If you don't know the coordinates offhand, search "[city name]
+latitude longitude" — any result works, decimal degrees like
+`48.1351, 11.5820`.
 
-Note: the map uses a simplified, hand-drawn continent outline for a clean
-industrial look — it's for showing general delivery regions, not precise
-geographic borders.
+You can edit a region's label, coordinates, or radius directly in the
+admin table — changes save automatically when you click out of the field.
+
 
