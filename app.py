@@ -106,83 +106,106 @@ def close_db(exception=None):
 
 
 def init_db():
-    db = make_connection()
-    db.execute(
-        """CREATE TABLE IF NOT EXISTS products (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL,
-            unit TEXT NOT NULL,
-            price INTEGER NOT NULL,
-            stock TEXT NOT NULL DEFAULT 'in'
-        )"""
-    )
-    db.execute(
-        """CREATE TABLE IF NOT EXISTS orders (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            customer_name TEXT NOT NULL,
-            contact TEXT NOT NULL,
-            note TEXT,
-            items_json TEXT NOT NULL,
-            total INTEGER NOT NULL,
-            status TEXT NOT NULL DEFAULT 'new',
-            created_at TEXT NOT NULL
-        )"""
-    )
-    db.execute(
-        """CREATE TABLE IF NOT EXISTS admin (
-            id INTEGER PRIMARY KEY CHECK (id = 1),
-            password_hash TEXT NOT NULL
-        )"""
-    )
-    db.execute(
-        """CREATE TABLE IF NOT EXISTS delivery_regions (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            label TEXT NOT NULL,
-            lat REAL NOT NULL,
-            lon REAL NOT NULL,
-            radius_km REAL NOT NULL DEFAULT 30,
-            note TEXT
-        )"""
-    )
-    # migrate older databases that were created before radius_km existed
+    try:
+        db = make_connection()
+    except Exception as e:
+        print(f"[atlas-supply] FATAL: could not connect to database at startup: {e}", flush=True)
+        raise
+
+    try:
+        db.execute(
+            """CREATE TABLE IF NOT EXISTS products (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                unit TEXT NOT NULL,
+                price INTEGER NOT NULL,
+                stock TEXT NOT NULL DEFAULT 'in'
+            )"""
+        )
+        db.execute(
+            """CREATE TABLE IF NOT EXISTS orders (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                customer_name TEXT NOT NULL,
+                contact TEXT NOT NULL,
+                note TEXT,
+                items_json TEXT NOT NULL,
+                total INTEGER NOT NULL,
+                status TEXT NOT NULL DEFAULT 'new',
+                created_at TEXT NOT NULL
+            )"""
+        )
+        db.execute(
+            """CREATE TABLE IF NOT EXISTS admin (
+                id INTEGER PRIMARY KEY CHECK (id = 1),
+                password_hash TEXT NOT NULL
+            )"""
+        )
+        db.execute(
+            """CREATE TABLE IF NOT EXISTS delivery_regions (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                label TEXT NOT NULL,
+                lat REAL NOT NULL,
+                lon REAL NOT NULL,
+                radius_km REAL NOT NULL DEFAULT 30,
+                note TEXT
+            )"""
+        )
+        db.commit()
+    except Exception as e:
+        print(f"[atlas-supply] FATAL: could not create tables at startup: {e}", flush=True)
+        db.close()
+        raise
+
+    # migrate older databases that were created before radius_km existed.
+    # Different backends report "column already exists" differently, so we
+    # only swallow errors here (this statement is expected to fail on a
+    # database that already has the column) — real connection failures were
+    # already raised above.
     try:
         db.execute("ALTER TABLE delivery_regions ADD COLUMN radius_km REAL NOT NULL DEFAULT 30")
         db.commit()
     except Exception:
         pass
 
-    # seed default admin password if none exists yet
-    row = db.execute("SELECT * FROM admin WHERE id = 1").fetchone()
-    if row is None:
-        default_password = os.environ.get("ADMIN_DEFAULT_PASSWORD", "changeme123")
-        db.execute(
-            "INSERT INTO admin (id, password_hash) VALUES (1, ?)",
-            (generate_password_hash(default_password),),
-        )
+    try:
+        # seed default admin password if none exists yet
+        row = db.execute("SELECT * FROM admin WHERE id = 1").fetchone()
+        if row is None:
+            default_password = os.environ.get("ADMIN_DEFAULT_PASSWORD", "changeme123")
+            db.execute(
+                "INSERT INTO admin (id, password_hash) VALUES (1, ?)",
+                (generate_password_hash(default_password),),
+            )
 
-    # seed a few example products if the table is empty
-    count = db.execute("SELECT COUNT(*) FROM products").fetchone()[0]
-    if count == 0:
-        db.executemany(
-            "INSERT INTO products (name, unit, price, stock) VALUES (?, ?, ?, ?)",
-            [
-                ("Concrete", "per bag", 45, "in"),
-                ("Steel beam", "per piece", 120, "low"),
-                ("Bricks", "per pallet", 80, "in"),
-            ],
-        )
+        # seed a few example products if the table is empty
+        count = db.execute("SELECT COUNT(*) FROM products").fetchone()[0]
+        if count == 0:
+            db.executemany(
+                "INSERT INTO products (name, unit, price, stock) VALUES (?, ?, ?, ?)",
+                [
+                    ("Concrete", "per bag", 45, "in"),
+                    ("Steel beam", "per piece", 120, "low"),
+                    ("Bricks", "per pallet", 80, "in"),
+                ],
+            )
 
-    count = db.execute("SELECT COUNT(*) FROM delivery_regions").fetchone()[0]
-    if count == 0:
-        db.executemany(
-            "INSERT INTO delivery_regions (label, lat, lon, radius_km, note) VALUES (?, ?, ?, ?, ?)",
-            [
-                ("Munich, Germany", 48.1351, 11.5820, 30, ""),
-            ],
-        )
+        count = db.execute("SELECT COUNT(*) FROM delivery_regions").fetchone()[0]
+        if count == 0:
+            db.executemany(
+                "INSERT INTO delivery_regions (label, lat, lon, radius_km, note) VALUES (?, ?, ?, ?, ?)",
+                [
+                    ("Munich, Germany", 48.1351, 11.5820, 30, ""),
+                ],
+            )
 
-    db.commit()
-    db.close()
+        db.commit()
+    except Exception as e:
+        # Seeding failures (e.g. a race between multiple workers seeding at
+        # the same time) should not crash the whole app — the tables already
+        # exist at this point, so the app can still serve requests.
+        print(f"[atlas-supply] WARNING: seed step failed (non-fatal): {e}", flush=True)
+    finally:
+        db.close()
 
 
 def login_required(view):
